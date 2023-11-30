@@ -24,6 +24,8 @@ public class Prueba {
 			}
 		});
 	}
+	
+	private String CAMBIO;
 
 	/**
 	 * Create the application.
