@@ -48,4 +48,5 @@ public class Prueba {
 	public void mostrarVentana() {
         frame.setVisible(true);
     }
+	/*uwdfcufwe*/
 }
