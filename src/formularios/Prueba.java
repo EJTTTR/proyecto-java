@@ -25,7 +25,7 @@ public class Prueba {
 		});
 	}
 	
-	private String CAMBIO;
+	private String CAMBIO = "hola";
 
 	/**
 	 * Create the application.
