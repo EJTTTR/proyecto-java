@@ -1,10 +1,6 @@
 package formularios;
 
 import java.awt.EventQueue;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JPasswordField;
@@ -14,14 +10,20 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
+import Empleados.Empleados;
+import Empleados.GestorEmpleado;
 import Empleados.GestorUsuario;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class NuevoUsuario {
 
 	private JFrame frame;
+	private JTextField txtNom;
+	private JTextField txtApe;
+	private JTextField txtNU;
 	private JPasswordField passwordField;
-	private JTextField textField;
-	private JTextField textField_1;
 
 	/**
 	 * Launch the application.
@@ -55,90 +57,102 @@ public class NuevoUsuario {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		passwordField = new JPasswordField();
-		passwordField.setBounds(105, 178, 170, 20);
-		frame.getContentPane().add(passwordField);
-		
-		JLabel lbl1 = new JLabel("Contraseña");
-		lbl1.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl1.setBounds(143, 147, 95, 20);
-		frame.getContentPane().add(lbl1);
-		
 		JLabel lblNewLabel_1 = new JLabel("Nombre");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel_1.setBounds(149, 23, 68, 20);
+		lblNewLabel_1.setBounds(84, 49, 77, 20);
 		frame.getContentPane().add(lblNewLabel_1);
 		
-		JLabel lblNewLabel_2 = new JLabel("ID Empleado");
+		JLabel lblNewLabel_2 = new JLabel("Apellido");
 		lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel_2.setBounds(143, 85, 95, 20);
+		lblNewLabel_2.setBounds(84, 111, 77, 20);
 		frame.getContentPane().add(lblNewLabel_2);
 		
-		textField = new JTextField();
-		textField.setBounds(105, 54, 170, 20);
-		frame.getContentPane().add(textField);
-		textField.setColumns(10);
+		txtNom = new JTextField();
+		txtNom.setBounds(45, 80, 148, 20);
+		frame.getContentPane().add(txtNom);
+		txtNom.setColumns(10);
 		
-		textField_1 = new JTextField();
-		textField_1.setBounds(105, 116, 170, 20);
-		frame.getContentPane().add(textField_1);
-		textField_1.setColumns(10);
+		txtApe = new JTextField();
+		txtApe.setBounds(45, 151, 148, 20);
+		frame.getContentPane().add(txtApe);
+		txtApe.setColumns(10);
 		
-		JButton btnRegistrar = new JButton("Registrar");
-		btnRegistrar.setBounds(149, 209, 89, 23);
-		frame.getContentPane().add(btnRegistrar);
+		JButton btnNewButton = new JButton("Añadir");
+		btnNewButton.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        String nombre = txtNom.getText();
+		        String apellido = txtApe.getText();
+
+		        Empleados nuevoEmpleado = new Empleados(0, nombre, apellido, 0);  
+		        
+		        GestorUsuario gestorUsuario = new GestorUsuario();
+                String nombreUsuario = nombre + apellido;
+                
+                while (gestorUsuario.verificarExistenciaUsuario(nombreUsuario)) {
+                    // Si el usuario ya existe, agregar números aleatorios al final del nombre de usuario
+                    int numeroAleatorio = (int) (Math.random() * 999);
+                    nombreUsuario = nombreUsuario + numeroAleatorio;
+                }
+		        
+		        GestorEmpleado gestorEmpleado = new GestorEmpleado(); 		        
+		        boolean insercionExitosa = gestorEmpleado.insertarEmpleado(nuevoEmpleado);
+
+		        if (insercionExitosa) {
+		             nombreUsuario = nombre + apellido;
+		            txtNU.setText(nombreUsuario);
+		            JOptionPane.showMessageDialog(null, "Empleado registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		        } else {
+		            JOptionPane.showMessageDialog(null, "Error al insertar empleado", "Error", JOptionPane.ERROR_MESSAGE);
+		        }
+		    }
+		});
+
+		btnNewButton.setBounds(72, 197, 89, 23);
+		frame.getContentPane().add(btnNewButton);
 		
-		btnRegistrar.addActionListener(e -> {
-			 	String nombreUsuario = textField.getText();
-	            String contraseña = String.valueOf(passwordField.getPassword());
-	            String idEmpleado = textField_1.getText();
-	            
-	            if (nombreUsuario.isEmpty() || contraseña.isEmpty() || idEmpleado.isEmpty()) {
-	                JOptionPane.showMessageDialog(frame, "Por favor, completa todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-	                return; 
-	            }
+		JButton btnNewButton_1 = new JButton("Registrar");
+		btnNewButton_1.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        // Obtener el nombre de usuario y la contraseña
+		        String nombreUsuario = txtNU.getText();
+		        String contraseña = new String(passwordField.getPassword());
 
-	            if (nombreUsuario.length() < 3 || contraseña.length() < 5) {
-	                JOptionPane.showMessageDialog(frame, "El nombre de usuario debe tener al menos 3 caracteres y la contraseña al menos 5 caracteres.", "Error", JOptionPane.ERROR_MESSAGE);
-	                return;
-	            }
-	            
-	            GestorUsuario gestorUser = new GestorUsuario();
-	            
-	            if (!gestorUser.esIdEmpleadoValido(idEmpleado)) {
-	                JOptionPane.showMessageDialog(frame, "El ID del empleado no es válido.", "Error", JOptionPane.ERROR_MESSAGE);
-	                return;
-	            }
+		        // Lógica para insertar un nuevo usuario en la base de datos
+		        GestorUsuario gestorUsuario = new GestorUsuario();
+		        boolean insercionExitosa = gestorUsuario.insertarUsuario(nombreUsuario, contraseña);
 
-	            Connection conexion = null;
-	            try {
-	                conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
-	                String sql = "INSERT INTO users (user_Name, password, idEmpleado) VALUES (?, ?, ?)";
-	                PreparedStatement statement = conexion.prepareStatement(sql);
-	                statement.setString(1, nombreUsuario);
-	                statement.setString(2, contraseña);
-	                statement.setString(3, idEmpleado);
-
-	                int filasInsertadas = statement.executeUpdate();
-	                if (filasInsertadas > 0) {
-	                    System.out.println("Nuevo usuario registrado exitosamente.");
-	                    frame.dispose(); 
-	                    
-	                    login lo = new login();
-	                    lo.mostrarVentana();
-	                }
-	            } catch (SQLException ex) {
-	                ex.printStackTrace();
-	            } finally {
-	                try {
-	                    if (conexion != null) {
-	                        conexion.close();
-	                    }
-	                } catch (SQLException ex) {
-	                    ex.printStackTrace();
-	                }
-	            }
-	        });;
+		        if (insercionExitosa) {
+		            JOptionPane.showMessageDialog(null, "Usuario registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+		            frame.dispose();
+					
+					login l = new login();
+					l.mostrarVentana();
+		        } else {
+		            JOptionPane.showMessageDialog(null, "Error al registrar usuario", "Error", JOptionPane.ERROR_MESSAGE);
+		        }
+		    }
+		});
+		btnNewButton_1.setBounds(232, 197, 89, 23);
+		frame.getContentPane().add(btnNewButton_1);
+		
+		JLabel lblNewLabel_3 = new JLabel("Usuario");
+		lblNewLabel_3.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_3.setBounds(235, 49, 86, 20);
+		frame.getContentPane().add(lblNewLabel_3);
+		
+		txtNU = new JTextField();
+		txtNU.setEditable(false);
+		txtNU.setBounds(235, 80, 86, 20);
+		frame.getContentPane().add(txtNU);
+		txtNU.setColumns(10);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(235, 151, 86, 20);
+		frame.getContentPane().add(passwordField);
+		
+		JLabel lblNewLabel_4 = new JLabel("Contraseña");
+		lblNewLabel_4.setBounds(235, 111, 86, 20);
+		frame.getContentPane().add(lblNewLabel_4);;
 	}
 	public void mostrarVentana() {
         frame.setVisible(true);

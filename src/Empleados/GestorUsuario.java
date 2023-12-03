@@ -18,7 +18,7 @@ public class GestorUsuario {
     		
     		String sql = "SELECT * FROM users WHERE user_Name = ? AND password = ?";
     		
-    		pst = con .prepareStatement(sql);
+    		pst = con.prepareStatement(sql);
     		
     		pst.setString(1, user.getNombreUsuario());
     		pst.setString(2, user.getContraseña());
@@ -32,45 +32,73 @@ public class GestorUsuario {
     	} catch(Exception e){
     		System.out.print("error");
     	}
-    	
     	return usuario;
     }
-    public boolean esIdEmpleadoValido(String idEmpleado) {
-        Connection conexion = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        boolean existeID = false;
-
+    
+    public boolean insertarUsuario(String nombreUsuario, String contraseña) {
+    	java.sql.Connection con = null;
+    	PreparedStatement pst = null;
+        String sql = "INSERT INTO users (user_Name, password) VALUES (?, ?)";
         try {
-            conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
-
-            // Consulta SQL para buscar el ID del empleado en la tabla de empleados
-            String sql = "SELECT * FROM empleado WHERE idEmpleado = ?";
-            statement = conexion.prepareStatement(sql);
-            statement.setString(1, idEmpleado);
-            resultSet = statement.executeQuery();
-
-            // Si el resultSet tiene al menos una fila, significa que el ID existe
-            if (resultSet.next()) {
-                existeID = true;
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (resultSet != null) {
-                    resultSet.close();
+        	con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+        	
+            pst = con.prepareStatement(sql);
+            pst.setString(1, nombreUsuario);
+            pst.setString(2, contraseña);
+            int filasInsertadas = pst.executeUpdate();
+            return filasInsertadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+        	try {
+                if (pst != null) {
+                    pst.close();
                 }
-                if (statement != null) {
-                    statement.close();
+                if (con != null) {
+                    con.close();
                 }
-                if (conexion != null) {
-                    conexion.close();
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-        return existeID;
+    }
+    
+    public boolean verificarExistenciaUsuario(String nombreUsuario) {
+        boolean existe = false;
+
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "contraseña");
+
+            String sql = "SELECT * FROM Usuario WHERE nombreUsuario = ?";
+            pst = con.prepareStatement(sql);
+            pst.setString(1, nombreUsuario);
+            rs = pst.executeQuery();
+
+            if (rs.next()) {
+                existe = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+        	try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return existe;
     }
 }
