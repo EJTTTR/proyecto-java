@@ -12,9 +12,12 @@ public class GestorEmpleado {
         	Connection conexion = null;
         	PreparedStatement pst = null;
         	
+        	
         String sql = "INSERT INTO empleado (nombre, apellido, totalComision) VALUES (?, ?, 0)";
         try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
         	conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+        	
         	
             pst = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pst.setString(1, empleado.getNombreEmpleado());
@@ -31,7 +34,7 @@ public class GestorEmpleado {
             } else {
                 return false;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }finally {
@@ -55,6 +58,7 @@ public class GestorEmpleado {
         Empleados empleado = null;
         String sql = "SELECT * FROM empleado WHERE nombre = ? AND apellido = ?";
         try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
         	conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
             pst = conexion.prepareStatement(sql);
             pst.setString(1, nombre);
@@ -66,7 +70,7 @@ public class GestorEmpleado {
                 double totalComision = rs.getDouble("totalComision");
                 empleado = new Empleados(idEmpleado, nombre, apellido, totalComision);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }finally {
         	try {

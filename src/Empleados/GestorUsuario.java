@@ -14,6 +14,7 @@ public class GestorUsuario {
     	ResultSet rs = null;
     	
     	try {
+    		Class.forName("com.mysql.cj.jdbc.Driver");
     		con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
     		
     		String sql = "SELECT * FROM users WHERE user_Name = ? AND password = ?";
@@ -29,8 +30,8 @@ public class GestorUsuario {
     			usuario = new Usuario(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4));
     		}
     		
-    	} catch(Exception e){
-    		System.out.print("error");
+    	} catch(SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
     	}
     	return usuario;
     }
@@ -40,6 +41,7 @@ public class GestorUsuario {
     	PreparedStatement pst = null;
         String sql = "INSERT INTO users (user_Name, password) VALUES (?, ?)";
         try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
         	con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
         	
             pst = con.prepareStatement(sql);
@@ -47,7 +49,7 @@ public class GestorUsuario {
             pst.setString(2, contraseña);
             int filasInsertadas = pst.executeUpdate();
             return filasInsertadas > 0;
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
         }finally {
@@ -72,6 +74,7 @@ public class GestorUsuario {
         ResultSet rs = null;
 
         try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "contraseña");
 
             String sql = "SELECT * FROM Usuario WHERE nombreUsuario = ?";
@@ -82,7 +85,7 @@ public class GestorUsuario {
             if (rs.next()) {
                 existe = true;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
         	try {
