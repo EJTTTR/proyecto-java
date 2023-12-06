@@ -117,8 +117,8 @@ public class login {
 		if(usu != null) {
 			frame.dispose();
 			
-			Prueba l = new Prueba();
-			l.mostrarVentana();
+			ForEmpleado l = new ForEmpleado();
+			l.setVisible(true);
 		}else {
 			JOptionPane.showMessageDialog(frame, "Usuario no valido o contraseña incorrecta" ,"Error", JOptionPane.ERROR_MESSAGE);
 		}

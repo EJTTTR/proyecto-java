@@ -32,7 +32,21 @@ public class GestorUsuario {
     		
     	} catch(SQLException | ClassNotFoundException e) {
             e.printStackTrace();
-    	}
+    	} finally {
+        	try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pst != null) {
+                    pst.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     	return usuario;
     }
     
@@ -77,7 +91,7 @@ public class GestorUsuario {
         	Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "contraseña");
 
-            String sql = "SELECT * FROM Usuario WHERE nombreUsuario = ?";
+            String sql = "SELECT * FROM users WHERE user_Name = ?";
             pst = con.prepareStatement(sql);
             pst.setString(1, nombreUsuario);
             rs = pst.executeQuery();

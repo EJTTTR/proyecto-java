@@ -83,7 +83,7 @@ public class NuevoUsuario {
 		        String nombre = txtNom.getText();
 		        String apellido = txtApe.getText();
 
-		        Empleados nuevoEmpleado = new Empleados(0, nombre, apellido, 0);  
+		        Empleados nuevoEmpleado = new Empleados(0, nombre, apellido, (double) 0);  
 		        
 		        GestorUsuario gestorUsuario = new GestorUsuario();
                 String nombreUsuario = nombre + apellido;
