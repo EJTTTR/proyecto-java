@@ -89,34 +89,58 @@ public class GestorEmpleado {
 	}
 
 	public boolean eliminarEmpleado(int idEmpleado) {
-		Connection conexion = null;
-		PreparedStatement pst = null;
+	    Connection conexion = null;
+	    PreparedStatement pstEmpleado = null;
+	    PreparedStatement pstUser = null;
 
-		String sql = "DELETE FROM empleado WHERE id = ?";
-		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
-			pst = conexion.prepareStatement(sql);
-			pst.setInt(1, idEmpleado);
+	    String sqlEmpleado = "DELETE FROM empleado WHERE id = ?";
+	    String sqlUser = "DELETE FROM users WHERE idEmpleado = ?";
 
-			int filasEliminadas = pst.executeUpdate();
-			return filasEliminadas > 0;
-		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		} finally {
-			try {
-				if (pst != null) {
-					pst.close();
-				}
-				if (conexion != null) {
-					conexion.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+	    try {
+	        Class.forName("com.mysql.cj.jdbc.Driver");
+	        conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+	        conexion.setAutoCommit(false);
+
+	        // Eliminar empleado
+	        pstEmpleado = conexion.prepareStatement(sqlEmpleado);
+	        pstEmpleado.setInt(1, idEmpleado);
+	        int filasEliminadasEmpleado = pstEmpleado.executeUpdate();
+
+	        // Eliminar usuario asociado al empleado
+	        pstUser = conexion.prepareStatement(sqlUser);
+	        pstUser.setInt(1, idEmpleado);
+	        int filasEliminadasUser = pstUser.executeUpdate();
+
+	        boolean eliminacionExitosa = filasEliminadasEmpleado > 0 && filasEliminadasUser > 0;
+
+	        if (eliminacionExitosa) {
+	            conexion.commit();
+	        } else {
+	            conexion.rollback();
+	        }
+
+	        return eliminacionExitosa;
+	    } catch (SQLException | ClassNotFoundException e) {
+	        e.printStackTrace();
+	        return false;
+	    } finally {
+	        try {
+	            if (pstEmpleado != null) {
+	                pstEmpleado.close();
+	            }
+	            if (pstUser != null) {
+	                pstUser.close();
+	            }
+	            if (conexion != null) {
+	                conexion.setAutoCommit(true);
+	                conexion.close();
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
 	}
+
 
 	public boolean actualizarEmpleado(int idEmpleado, String nuevoNombre, String nuevoApellido, double nuevaComision) {
 		Connection conexion = null;
