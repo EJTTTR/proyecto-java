@@ -77,28 +77,27 @@ public class NuevoUsuario {
 		frame.getContentPane().add(txtApe);
 		txtApe.setColumns(10);
 		
-		JButton btnNewButton = new JButton("Añadir");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton btnAnadir = new JButton("Añadir");
+		btnAnadir.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		        String nombre = txtNom.getText();
 		        String apellido = txtApe.getText();
+		        String nombreUsuario = nombre + apellido;
+		        String contraseña = String.valueOf(passwordField.getPassword());
 
 		        Empleados nuevoEmpleado = new Empleados(0, nombre, apellido, (double) 0);  
-		        
 		        GestorUsuario gestorUsuario = new GestorUsuario();
-                String nombreUsuario = nombre + apellido;
                 
                 while (gestorUsuario.verificarExistenciaUsuario(nombreUsuario)) {
                     // Si el usuario ya existe, agregar números aleatorios al final del nombre de usuario
                     int numeroAleatorio = (int) (Math.random() * 999);
                     nombreUsuario = nombreUsuario + numeroAleatorio;
                 }
-		        
-		        GestorEmpleado gestorEmpleado = new GestorEmpleado(); 		        
-		        boolean insercionExitosa = gestorEmpleado.insertarEmpleado(nuevoEmpleado);
+
+		        GestorEmpleado gestorEmpleado = new GestorEmpleado();           
+		        boolean insercionExitosa = gestorEmpleado.insertarEmpleado(nuevoEmpleado, nombreUsuario, contraseña);
 
 		        if (insercionExitosa) {
-		             nombreUsuario = nombre + apellido;
 		            txtNU.setText(nombreUsuario);
 		            JOptionPane.showMessageDialog(null, "Empleado registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 		        } else {
@@ -107,33 +106,38 @@ public class NuevoUsuario {
 		    }
 		});
 
-		btnNewButton.setBounds(72, 197, 89, 23);
-		frame.getContentPane().add(btnNewButton);
+		btnAnadir.setBounds(72, 197, 89, 23);
+		frame.getContentPane().add(btnAnadir);
 		
-		JButton btnNewButton_1 = new JButton("Registrar");
-		btnNewButton_1.addActionListener(new ActionListener() {
+		JButton btnRegistrar = new JButton("Registrar");
+		btnRegistrar.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		        // Obtener el nombre de usuario y la contraseña
 		        String nombreUsuario = txtNU.getText();
 		        String contraseña = new String(passwordField.getPassword());
+		        int idEmpleado;
 
-		        // Lógica para insertar un nuevo usuario en la base de datos
+		        GestorEmpleado gestorEmpleado = new GestorEmpleado();
+		        idEmpleado = gestorEmpleado.obtenerUltimoIdEmpleado(); // Obtener el último idEmpleado
+
 		        GestorUsuario gestorUsuario = new GestorUsuario();
-		        boolean insercionExitosa = gestorUsuario.insertarUsuario(nombreUsuario, contraseña);
+		        boolean insercionExitosa = gestorUsuario.insertarUsuario(nombreUsuario, contraseña, idEmpleado);
 
 		        if (insercionExitosa) {
 		            JOptionPane.showMessageDialog(null, "Usuario registrado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
 		            frame.dispose();
-					
-					login l = new login();
-					l.mostrarVentana();
+
+		            login l = new login();
+		            l.mostrarVentana();
 		        } else {
 		            JOptionPane.showMessageDialog(null, "Error al registrar usuario", "Error", JOptionPane.ERROR_MESSAGE);
 		        }
 		    }
 		});
-		btnNewButton_1.setBounds(232, 197, 89, 23);
-		frame.getContentPane().add(btnNewButton_1);
+
+
+		btnRegistrar.setBounds(232, 197, 89, 23);
+		frame.getContentPane().add(btnRegistrar);
 		
 		JLabel lblNewLabel_3 = new JLabel("Usuario");
 		lblNewLabel_3.setHorizontalAlignment(SwingConstants.CENTER);

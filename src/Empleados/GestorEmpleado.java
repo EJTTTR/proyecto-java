@@ -174,5 +174,104 @@ public class GestorEmpleado {
 			}
 		}
 	}
+	
+	public boolean insertarEmpleado(Empleados empleado, String nombreUsuario, String contraseña) {
+	    Connection conexion = null;
+	    PreparedStatement pstEmpleado = null;
 
+	    String sqlEmpleado = "INSERT INTO empleado (nombre, apellido, totalComision) VALUES (?, ?, ?)";
+
+	    try {
+	        Class.forName("com.mysql.cj.jdbc.Driver");
+	        conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+	        conexion.setAutoCommit(false);
+
+	        pstEmpleado = conexion.prepareStatement(sqlEmpleado, Statement.RETURN_GENERATED_KEYS);
+	        pstEmpleado.setString(1, empleado.getNombreEmpleado());
+	        pstEmpleado.setString(2, empleado.getApellido());
+	        pstEmpleado.setDouble(3, empleado.getTotalComision());
+
+	        int filasInsertadasEmpleado = pstEmpleado.executeUpdate();
+	        boolean insercionExitosa = filasInsertadasEmpleado > 0;
+
+	        if (insercionExitosa) {
+	            ResultSet generatedKeys = pstEmpleado.getGeneratedKeys();
+	            int idEmpleadoGenerado = -1;
+	            if (generatedKeys.next()) {
+	                idEmpleadoGenerado = generatedKeys.getInt(1);
+	            }
+
+	            if (idEmpleadoGenerado != -1) {
+	                // Utiliza GestorUsuario para insertar el usuario asociado al empleado
+	                GestorUsuario gestorUsuario = new GestorUsuario();
+	                boolean insercionUsuarioExitosa = gestorUsuario.insertarUsuario(nombreUsuario, contraseña, idEmpleadoGenerado);
+
+	                if (insercionUsuarioExitosa) {
+	                    conexion.commit();
+	                } else {
+	                    conexion.rollback();
+	                }
+	                return insercionUsuarioExitosa;
+	            } else {
+	                conexion.rollback();
+	            }
+	        } else {
+	            conexion.rollback();
+	        }
+
+	        return false;
+	    } catch (SQLException | ClassNotFoundException e) {
+	        e.printStackTrace();
+	        return false;
+	    } finally {
+	        try {
+	            if (pstEmpleado != null) {
+	                pstEmpleado.close();
+	            }
+	            if (conexion != null) {
+	                conexion.setAutoCommit(true);
+	                conexion.close();
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	}
+
+	public int obtenerUltimoIdEmpleado() {
+	    Connection conexion = null;
+	    PreparedStatement pst = null;
+	    ResultSet rs = null;
+	    int ultimoId = 0;
+
+	    try {
+	        Class.forName("com.mysql.cj.jdbc.Driver");
+	        conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+
+	        String sql = "SELECT MAX(id) AS ultimoId FROM empleado"; 
+	        pst = conexion.prepareStatement(sql);
+	        rs = pst.executeQuery();
+
+	        if (rs.next()) {
+	            ultimoId = rs.getInt("ultimoId");
+	        }
+	    } catch (SQLException | ClassNotFoundException e) {
+	        e.printStackTrace();
+	    } finally {
+	        try {
+	            if (rs != null) {
+	                rs.close();
+	            }
+	            if (pst != null) {
+	                pst.close();
+	            }
+	            if (conexion != null) {
+	                conexion.close();
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        }
+	    }
+	    return ultimoId;
+	}
 }

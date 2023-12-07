@@ -50,24 +50,27 @@ public class GestorUsuario {
     	return usuario;
     }
     
-    public boolean insertarUsuario(String nombreUsuario, String contraseña) {
-    	java.sql.Connection con = null;
-    	PreparedStatement pst = null;
-        String sql = "INSERT INTO users (user_Name, password) VALUES (?, ?)";
+    public boolean insertarUsuario(String nombreUsuario, String contraseña, int idEmpleado) {
+        Connection con = null;
+        PreparedStatement pst = null;
+        String sql = "INSERT INTO users (user_Name, password, idEmpleado) VALUES (?, ?, ?)";
+
         try {
-        	Class.forName("com.mysql.cj.jdbc.Driver");
-        	con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
-        	
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/usuarios", "root", "qwerty");
+
             pst = con.prepareStatement(sql);
             pst.setString(1, nombreUsuario);
             pst.setString(2, contraseña);
+            pst.setInt(3, idEmpleado);
+
             int filasInsertadas = pst.executeUpdate();
             return filasInsertadas > 0;
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             return false;
-        }finally {
-        	try {
+        } finally {
+            try {
                 if (pst != null) {
                     pst.close();
                 }
@@ -79,6 +82,7 @@ public class GestorUsuario {
             }
         }
     }
+
     
     public boolean verificarExistenciaUsuario(String nombreUsuario) {
         boolean existe = false;
