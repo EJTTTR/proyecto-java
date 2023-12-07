@@ -29,7 +29,7 @@ public class login {
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
-			public void run() { 
+			public void run() {
 				try {
 					login window = new login();
 					window.frame.setVisible(true);

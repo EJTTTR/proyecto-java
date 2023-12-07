@@ -12,7 +12,7 @@ public abstract class aEmpleado {
 	public aEmpleado(int idEmpleado, String nombreEmpleado, String apellido, Double totalComision) {
 		// TODO Auto-generated constructor stub
 		this.idEmpleado = idEmpleado;
-		this.nombreEmpleado = nombreEmpleado;
+		this.nombreEmpleado = nombreEmpleado; 
 		this.apellido = apellido;
 		this.totalComision = totalComision;
 	}
